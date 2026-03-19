@@ -11,7 +11,6 @@
       --surface: #161b22;
       --border: #30363d;
       --accent: #58d68d;
-      --accent2: #1abc9c;
       --text: #e6edf3;
       --muted: #8b949e;
       --error: #f85149;
@@ -31,7 +30,6 @@
       padding: 2rem 1rem 4rem;
     }
 
-    /* background grid */
     body::before {
       content: '';
       position: fixed;
@@ -77,9 +75,7 @@
       letter-spacing: -0.02em;
     }
 
-    h1 span {
-      color: var(--accent);
-    }
+    h1 span { color: var(--accent); }
 
     .subtitle {
       color: var(--muted);
@@ -96,9 +92,38 @@
       margin-bottom: 1.2rem;
     }
 
-    .field {
-      margin-bottom: 1.4rem;
+    .mode-toggle {
+      display: flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 1.6rem;
+      gap: 4px;
     }
+
+    .mode-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      padding: 0.55rem 0.4rem;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .mode-btn.active {
+      background: var(--accent);
+      color: #0d1117;
+      font-weight: 500;
+    }
+
+    .field { margin-bottom: 1.4rem; }
 
     label {
       display: block;
@@ -118,9 +143,7 @@
       transition: border-color 0.2s;
     }
 
-    .input-row:focus-within {
-      border-color: var(--accent);
-    }
+    .input-row:focus-within { border-color: var(--accent); }
 
     input[type="number"] {
       flex: 1;
@@ -145,10 +168,8 @@
       padding: 0 1rem;
       display: flex;
       align-items: center;
-      letter-spacing: 0.05em;
     }
 
-    /* Presets */
     .presets {
       display: flex;
       gap: 0.5rem;
@@ -168,14 +189,12 @@
       transition: all 0.15s;
     }
 
-    .preset-btn:hover,
-    .preset-btn.active {
+    .preset-btn:hover, .preset-btn.active {
       border-color: var(--accent);
       color: var(--accent);
       background: rgba(88,214,141,0.08);
     }
 
-    /* Slider */
     input[type="range"] {
       width: 100%;
       margin-top: 0.6rem;
@@ -191,7 +210,6 @@
       margin-top: 0.3rem;
     }
 
-    /* Botón calcular */
     button.calc {
       width: 100%;
       background: var(--accent);
@@ -201,7 +219,6 @@
       font-family: 'Syne', sans-serif;
       font-size: 1rem;
       font-weight: 700;
-      letter-spacing: 0.05em;
       padding: 0.9rem;
       cursor: pointer;
       transition: opacity 0.2s, transform 0.1s;
@@ -211,7 +228,6 @@
     button.calc:hover { opacity: 0.9; }
     button.calc:active { transform: scale(0.98); }
 
-    /* Resultado */
     .result {
       display: none;
       background: var(--card);
@@ -238,8 +254,8 @@
 
     .result-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.8rem;
       margin-bottom: 1.2rem;
     }
 
@@ -247,13 +263,18 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 1rem;
+      padding: 0.9rem 0.5rem;
       text-align: center;
+    }
+
+    .result-item.highlight {
+      border-color: var(--accent);
+      background: rgba(88,214,141,0.06);
     }
 
     .result-value {
       font-family: 'Syne', sans-serif;
-      font-size: 1.8rem;
+      font-size: 1.5rem;
       font-weight: 800;
       color: var(--accent);
       line-height: 1;
@@ -261,9 +282,9 @@
     }
 
     .result-label {
-      font-size: 0.68rem;
+      font-size: 0.62rem;
       color: var(--muted);
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
     }
 
@@ -307,14 +328,24 @@
   <header>
     <div class="pill">Laboratorio · Dilución</div>
     <h1>Alcohol<br><span>al 70%</span></h1>
-    <p class="subtitle">Calcula cuánto alcohol y agua necesitas<br>para preparar tu solución desinfectante.</p>
+    <p class="subtitle">Prepara tu solución desinfectante<br>desde alcohol de 95%, 96% o 99.9%.</p>
   </header>
 
   <div class="card">
 
-    <!-- Volumen final -->
+    <!-- Toggle de modo -->
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-modo-final" onclick="setModo('final')">
+        Quiero preparar<br>X mL al 70%
+      </button>
+      <button class="mode-btn" id="btn-modo-alcohol" onclick="setModo('alcohol')">
+        Tengo X mL<br>de alcohol
+      </button>
+    </div>
+
+    <!-- Volumen -->
     <div class="field">
-      <label>Volumen final a preparar</label>
+      <label id="label-vol">Volumen final a preparar</label>
       <div class="input-row">
         <input type="number" id="vol" placeholder="ej: 1000" min="1" step="1"/>
         <div class="unit">mL</div>
@@ -332,11 +363,7 @@
       <label>Concentración del alcohol disponible: <span id="conc-display" style="color:var(--accent)">95%</span></label>
       <input type="range" id="conc" min="71" max="100" step="0.1" value="95" oninput="updateConc()"/>
       <div class="range-labels">
-        <span>71%</span>
-        <span>80%</span>
-        <span>90%</span>
-        <span>96%</span>
-        <span>100%</span>
+        <span>71%</span><span>80%</span><span>90%</span><span>96%</span><span>100%</span>
       </div>
       <div class="presets" style="margin-top:0.8rem">
         <button class="preset-btn active" onclick="setConc(95)">95%</button>
@@ -355,28 +382,43 @@
     <div class="result-grid">
       <div class="result-item">
         <div class="result-value" id="r-alcohol">—</div>
-        <div class="result-label">Alcohol (mL)</div>
+        <div class="result-label" id="label-r-alcohol">Alcohol (mL)</div>
       </div>
       <div class="result-item">
         <div class="result-value" id="r-agua">—</div>
         <div class="result-label">Agua (mL)</div>
+      </div>
+      <div class="result-item highlight">
+        <div class="result-value" id="r-final">—</div>
+        <div class="result-label">Sol. final (mL)</div>
       </div>
     </div>
     <div class="result-formula" id="r-formula"></div>
   </div>
 
   <footer>
-    Fórmula: V₁ = (V₂ × C₂) / C₁<br>
-    Agua = V₂ − V₁
+    Modo A: Alcohol = (V_final × 70) / C₁<br>
+    Modo B: Agua = V_alcohol × (C₁ / 70 − 1)
   </footer>
 
 </div>
 
 <script>
+  let modo = 'final';
+
+  function setModo(m) {
+    modo = m;
+    document.getElementById('btn-modo-final').classList.toggle('active', m === 'final');
+    document.getElementById('btn-modo-alcohol').classList.toggle('active', m === 'alcohol');
+    document.getElementById('label-vol').textContent =
+      m === 'final' ? 'Volumen final a preparar' : 'Volumen de alcohol disponible';
+    document.getElementById('vol').placeholder = m === 'final' ? 'ej: 1000' : 'ej: 325';
+    document.getElementById('result').classList.remove('visible');
+  }
+
   function updateConc() {
     const val = parseFloat(document.getElementById('conc').value);
     document.getElementById('conc-display').textContent = val + '%';
-    // update active preset buttons
     document.querySelectorAll('.preset-btn').forEach(b => {
       if ([95, 96, 99.9].includes(parseFloat(b.textContent))) {
         b.classList.toggle('active', parseFloat(b.textContent) === val);
@@ -425,21 +467,34 @@
       return;
     }
 
-    const vAlc  = (vol * 70) / conc;
-    const vAgua = vol - vAlc;
+    let vAlc, vAgua, vFinal;
+
+    if (modo === 'final') {
+      // Quiero preparar X mL de solución al 70%
+      vFinal = vol;
+      vAlc   = (vFinal * 70) / conc;
+      vAgua  = vFinal - vAlc;
+      document.getElementById('r-formula').innerHTML =
+        `Quiero <span>${vFinal} mL</span> al <span>70%</span> desde alcohol al <span>${conc}%</span>:<br>` +
+        `Alcohol = (${vFinal} × 70) / ${conc} = <span>${vAlc.toFixed(1)} mL</span><br>` +
+        `Agua = ${vFinal} − ${vAlc.toFixed(1)} = <span>${vAgua.toFixed(1)} mL</span>`;
+    } else {
+      // Tengo X mL de alcohol, ¿cuánta agua agrego?
+      vAlc   = vol;
+      vAgua  = vAlc * (conc / 70 - 1);
+      vFinal = vAlc + vAgua;
+      document.getElementById('r-formula').innerHTML =
+        `Tengo <span>${vAlc} mL</span> de alcohol al <span>${conc}%</span>:<br>` +
+        `Agua = ${vAlc} × (${conc}/70 − 1) = <span>${vAgua.toFixed(1)} mL</span><br>` +
+        `Solución final = ${vAlc} + ${vAgua.toFixed(1)} = <span>${vFinal.toFixed(1)} mL</span> al 70%`;
+    }
 
     document.getElementById('r-alcohol').textContent = vAlc.toFixed(1);
     document.getElementById('r-agua').textContent    = vAgua.toFixed(1);
-    document.getElementById('r-formula').innerHTML   =
-      `Para preparar <span>${vol} mL</span> al <span>70%</span> ` +
-      `desde alcohol al <span>${conc}%</span>:<br>` +
-      `Alcohol = (${vol} × 70) / ${conc} = <span>${vAlc.toFixed(1)} mL</span><br>` +
-      `Agua = ${vol} − ${vAlc.toFixed(1)} = <span>${vAgua.toFixed(1)} mL</span>`;
-
+    document.getElementById('r-final').textContent   = vFinal.toFixed(1);
     resEl.classList.add('visible');
   }
 
-  // Enter key triggers calculation
   document.addEventListener('keydown', e => {
     if (e.key === 'Enter') calcular();
   });
