@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculadora Alcohol 70%</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --accent: #58d68d;
+      --accent2: #1abc9c;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --error: #f85149;
+      --card: #1c2128;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 4rem;
+    }
+
+    /* background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(88,214,141,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(88,214,141,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    header {
+      margin-bottom: 2.5rem;
+      text-align: center;
+    }
+
+    .pill {
+      display: inline-block;
+      background: rgba(88,214,141,0.12);
+      border: 1px solid rgba(88,214,141,0.3);
+      color: var(--accent);
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 8vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    h1 span {
+      color: var(--accent);
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-top: 0.6rem;
+      line-height: 1.6;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.8rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .field {
+      margin-bottom: 1.4rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .input-row {
+      display: flex;
+      align-items: stretch;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .input-row:focus-within {
+      border-color: var(--accent);
+    }
+
+    input[type="number"] {
+      flex: 1;
+      background: var(--surface);
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 1.1rem;
+      padding: 0.75rem 1rem;
+      -moz-appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    .unit {
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.75rem;
+      padding: 0 1rem;
+      display: flex;
+      align-items: center;
+      letter-spacing: 0.05em;
+    }
+
+    /* Presets */
+    .presets {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.6rem;
+    }
+
+    .preset-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .preset-btn:hover,
+    .preset-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(88,214,141,0.08);
+    }
+
+    /* Slider */
+    input[type="range"] {
+      width: 100%;
+      margin-top: 0.6rem;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+    }
+
+    /* Botón calcular */
+    button.calc {
+      width: 100%;
+      background: var(--accent);
+      color: #0d1117;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 0.9rem;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 0.4rem;
+    }
+
+    button.calc:hover { opacity: 0.9; }
+    button.calc:active { transform: scale(0.98); }
+
+    /* Resultado */
+    .result {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--accent);
+      border-radius: 16px;
+      padding: 1.8rem;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .result.visible { display: block; }
+
+    .result-title {
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.2rem;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .result-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .result-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+
+    .result-label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .result-formula {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .result-formula span { color: var(--accent); }
+
+    .error-msg {
+      display: none;
+      color: var(--error);
+      font-size: 0.78rem;
+      margin-top: 0.8rem;
+      padding: 0.6rem 1rem;
+      background: rgba(248,81,73,0.08);
+      border: 1px solid rgba(248,81,73,0.2);
+      border-radius: 8px;
+    }
+
+    .error-msg.visible { display: block; }
+
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.68rem;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <div class="pill">Laboratorio · Dilución</div>
+    <h1>Alcohol<br><span>al 70%</span></h1>
+    <p class="subtitle">Calcula cuánto alcohol y agua necesitas<br>para preparar tu solución desinfectante.</p>
+  </header>
+
+  <div class="card">
+
+    <!-- Volumen final -->
+    <div class="field">
+      <label>Volumen final a preparar</label>
+      <div class="input-row">
+        <input type="number" id="vol" placeholder="ej: 1000" min="1" step="1"/>
+        <div class="unit">mL</div>
+      </div>
+      <div class="presets">
+        <button class="preset-btn" onclick="setVol(100)">100 mL</button>
+        <button class="preset-btn" onclick="setVol(250)">250 mL</button>
+        <button class="preset-btn" onclick="setVol(500)">500 mL</button>
+        <button class="preset-btn" onclick="setVol(1000)">1 L</button>
+      </div>
+    </div>
+
+    <!-- Concentración inicial -->
+    <div class="field">
+      <label>Concentración del alcohol disponible: <span id="conc-display" style="color:var(--accent)">95%</span></label>
+      <input type="range" id="conc" min="71" max="100" step="0.1" value="95" oninput="updateConc()"/>
+      <div class="range-labels">
+        <span>71%</span>
+        <span>80%</span>
+        <span>90%</span>
+        <span>96%</span>
+        <span>100%</span>
+      </div>
+      <div class="presets" style="margin-top:0.8rem">
+        <button class="preset-btn active" onclick="setConc(95)">95%</button>
+        <button class="preset-btn" onclick="setConc(96)">96%</button>
+        <button class="preset-btn" onclick="setConc(99.9)">99.9%</button>
+      </div>
+    </div>
+
+    <button class="calc" onclick="calcular()">Calcular →</button>
+    <div class="error-msg" id="error"></div>
+  </div>
+
+  <!-- Resultado -->
+  <div class="result" id="result">
+    <div class="result-title">▸ Resultado</div>
+    <div class="result-grid">
+      <div class="result-item">
+        <div class="result-value" id="r-alcohol">—</div>
+        <div class="result-label">Alcohol (mL)</div>
+      </div>
+      <div class="result-item">
+        <div class="result-value" id="r-agua">—</div>
+        <div class="result-label">Agua (mL)</div>
+      </div>
+    </div>
+    <div class="result-formula" id="r-formula"></div>
+  </div>
+
+  <footer>
+    Fórmula: V₁ = (V₂ × C₂) / C₁<br>
+    Agua = V₂ − V₁
+  </footer>
+
+</div>
+
+<script>
+  function updateConc() {
+    const val = parseFloat(document.getElementById('conc').value);
+    document.getElementById('conc-display').textContent = val + '%';
+    // update active preset buttons
+    document.querySelectorAll('.preset-btn').forEach(b => {
+      if ([95, 96, 99.9].includes(parseFloat(b.textContent))) {
+        b.classList.toggle('active', parseFloat(b.textContent) === val);
+      }
+    });
+  }
+
+  function setVol(v) {
+    document.getElementById('vol').value = v;
+    document.querySelectorAll('.preset-btn').forEach(b => {
+      const label = b.textContent.trim();
+      if (['100 mL','250 mL','500 mL','1 L'].includes(label)) {
+        const bv = label === '1 L' ? 1000 : parseInt(label);
+        b.classList.toggle('active', bv === v);
+      }
+    });
+  }
+
+  function setConc(c) {
+    document.getElementById('conc').value = c;
+    document.getElementById('conc-display').textContent = c + '%';
+    document.querySelectorAll('.preset-btn').forEach(b => {
+      if ([95, 96, 99.9].includes(parseFloat(b.textContent))) {
+        b.classList.toggle('active', parseFloat(b.textContent) === c);
+      }
+    });
+  }
+
+  function calcular() {
+    const vol  = parseFloat(document.getElementById('vol').value);
+    const conc = parseFloat(document.getElementById('conc').value);
+    const errEl = document.getElementById('error');
+    const resEl = document.getElementById('result');
+
+    errEl.classList.remove('visible');
+    resEl.classList.remove('visible');
+
+    if (!vol || vol <= 0) {
+      errEl.textContent = 'Ingresa un volumen válido mayor a 0 mL.';
+      errEl.classList.add('visible');
+      return;
+    }
+    if (conc <= 70) {
+      errEl.textContent = 'La concentración inicial debe ser mayor al 70%.';
+      errEl.classList.add('visible');
+      return;
+    }
+
+    const vAlc  = (vol * 70) / conc;
+    const vAgua = vol - vAlc;
+
+    document.getElementById('r-alcohol').textContent = vAlc.toFixed(1);
+    document.getElementById('r-agua').textContent    = vAgua.toFixed(1);
+    document.getElementById('r-formula').innerHTML   =
+      `Para preparar <span>${vol} mL</span> al <span>70%</span> ` +
+      `desde alcohol al <span>${conc}%</span>:<br>` +
+      `Alcohol = (${vol} × 70) / ${conc} = <span>${vAlc.toFixed(1)} mL</span><br>` +
+      `Agua = ${vol} − ${vAlc.toFixed(1)} = <span>${vAgua.toFixed(1)} mL</span>`;
+
+    resEl.classList.add('visible');
+  }
+
+  // Enter key triggers calculation
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') calcular();
+  });
+</script>
+</body>
+</html>
