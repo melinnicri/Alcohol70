@@ -202,13 +202,23 @@
       cursor: pointer;
     }
 
+    /* Contenedor de labels posicionados correctamente */
     .range-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.65rem;
-      color: var(--muted);
+      position: relative;
+      height: 1.2rem;
       margin-top: 0.3rem;
     }
+
+    .range-labels span {
+      position: absolute;
+      font-size: 0.65rem;
+      color: var(--muted);
+      transform: translateX(-50%);
+    }
+
+    /* Fijar extremos para que no se corten */
+    .range-labels span:first-child { transform: translateX(0); }
+    .range-labels span:last-child  { transform: translateX(-100%); }
 
     button.calc {
       width: 100%;
@@ -333,7 +343,6 @@
 
   <div class="card">
 
-    <!-- Toggle de modo -->
     <div class="mode-toggle">
       <button class="mode-btn active" id="btn-modo-final" onclick="setModo('final')">
         Quiero preparar<br>X mL al 70%
@@ -343,7 +352,6 @@
       </button>
     </div>
 
-    <!-- Volumen -->
     <div class="field">
       <label id="label-vol">Volumen final a preparar</label>
       <div class="input-row">
@@ -358,13 +366,11 @@
       </div>
     </div>
 
-    <!-- Concentración inicial -->
     <div class="field">
       <label>Concentración del alcohol disponible: <span id="conc-display" style="color:var(--accent)">95%</span></label>
       <input type="range" id="conc" min="71" max="100" step="0.1" value="95" oninput="updateConc()"/>
-      <div class="range-labels">
-        <span>71%</span><span>80%</span><span>90%</span><span>96%</span><span>100%</span>
-      </div>
+      <!-- Labels posicionados proporcionalmente al rango 71–100 -->
+      <div class="range-labels" id="range-labels"></div>
       <div class="presets" style="margin-top:0.8rem">
         <button class="preset-btn active" onclick="setConc(95)">95%</button>
         <button class="preset-btn" onclick="setConc(96)">96%</button>
@@ -376,7 +382,6 @@
     <div class="error-msg" id="error"></div>
   </div>
 
-  <!-- Resultado -->
   <div class="result" id="result">
     <div class="result-title">▸ Resultado</div>
     <div class="result-grid">
@@ -405,6 +410,26 @@
 
 <script>
   let modo = 'final';
+
+  const RANGE_MIN = 71;
+  const RANGE_MAX = 100;
+  // Valores a mostrar como tick labels
+  const TICK_VALUES = [71, 80, 90, 96, 100];
+
+  function pct(val) {
+    return ((val - RANGE_MIN) / (RANGE_MAX - RANGE_MIN) * 100).toFixed(4) + '%';
+  }
+
+  // Generar labels posicionados correctamente
+  (function buildLabels() {
+    const container = document.getElementById('range-labels');
+    TICK_VALUES.forEach(v => {
+      const span = document.createElement('span');
+      span.textContent = v + '%';
+      span.style.left = pct(v);
+      container.appendChild(span);
+    });
+  })();
 
   function setModo(m) {
     modo = m;
@@ -470,7 +495,6 @@
     let vAlc, vAgua, vFinal;
 
     if (modo === 'final') {
-      // Quiero preparar X mL de solución al 70%
       vFinal = vol;
       vAlc   = (vFinal * 70) / conc;
       vAgua  = vFinal - vAlc;
@@ -479,7 +503,6 @@
         `Alcohol = (${vFinal} × 70) / ${conc} = <span>${vAlc.toFixed(1)} mL</span><br>` +
         `Agua = ${vFinal} − ${vAlc.toFixed(1)} = <span>${vAgua.toFixed(1)} mL</span>`;
     } else {
-      // Tengo X mL de alcohol, ¿cuánta agua agrego?
       vAlc   = vol;
       vAgua  = vAlc * (conc / 70 - 1);
       vFinal = vAlc + vAgua;
