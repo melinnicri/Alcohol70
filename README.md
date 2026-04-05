@@ -1,3 +1,10 @@
+## Calculadora de alcohol de 70% en React: https://alcohol70enreact.vercel.app/
+# Tienes que hacer cierta cantidad de solución de alcohol 70%?, 
+# la que puede ser con alcohol de 95%, 96% o de 99.9%,
+# para obtener una solución final al 70% que es desinfectante.
+# O tienes cierta cantidad de alcohol, cualquiera que sea y no sabes cuánta agua agregar??
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
